@@ -8,6 +8,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import java.util.List;
 
 @Path("/patient")
@@ -19,6 +20,8 @@ public class PatientRESTAPI {
     @Path("")
     public List<PatientEntity> getAll(){
         List<PatientEntity> p = em.createNativeQuery("SELECT * FROM Patient", PatientEntity.class).getResultList();
+        if (p == null)
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
         return p;
     }
 
@@ -26,7 +29,7 @@ public class PatientRESTAPI {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{id}")
     public PatientEntity getOne(@PathParam("id") int id){
-        return em.find(PatientEntity.class, id);
+        return getPatient(id);
     }
 
     @POST
@@ -40,11 +43,7 @@ public class PatientRESTAPI {
             em.persist(p);
             tx.commit();
         } catch (Exception e) {
-
             tx.rollback();
-        } finally {
-            // em.close();
-            // emf.close();
         }
     }
 
@@ -58,11 +57,19 @@ public class PatientRESTAPI {
         // Début des modifications
         try {
             tx.begin();
-            PatientEntity object = getOne(id);
+            PatientEntity object = getPatient(id);
             em.remove(em.contains(object) ? object : em.merge(object));
             tx.commit();
         } catch (Exception e) {
             tx.rollback();
         }
+    }
+
+    private PatientEntity getPatient(int id)
+    {
+        PatientEntity p = em.find(PatientEntity.class, id);
+        if (p == null)
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
+        return p;
     }
 }
