@@ -19,10 +19,18 @@ public class PatientRESTAPI {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("")
-    public List<PatientEntity> getAll(){
-        List<PatientEntity> p = em.createNativeQuery("SELECT * FROM Patient", PatientEntity.class).getResultList();
-        if (p == null)
-            throw new WebApplicationException(Response.Status.NOT_FOUND);
+    public List<PatientEntity> getAll( @QueryParam("nom") String pnom ){
+        //List<PatientEntity> p = em.createNativeQuery("SELECT * FROM patient", PatientEntity.class).getResultList();
+        List<PatientEntity> p = null;
+
+        System.out.println( "nom passé en param = " + pnom );
+
+        if( pnom == null || pnom.length() == 0  ){
+            p = em.createNamedQuery("patient.findAll" ).getResultList();
+        }else{
+            p = em.createNamedQuery("patient.findAllByNom" ).setParameter("nom" , "%"+pnom+"%").getResultList();
+        }
+
         return p;
     }
 

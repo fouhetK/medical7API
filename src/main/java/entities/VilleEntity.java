@@ -5,6 +5,10 @@ import java.util.Collection;
 
 @Entity
 @Table(name = "ville", schema = "medical_jpa")
+@NamedQueries( {
+        @NamedQuery( name="ville.findAll" , query = "SELECT v FROM VilleEntity v"),
+        @NamedQuery( name="ville.findAllByNom" , query = "SELECT v FROM VilleEntity v WHERE nom like :nom")
+})
 public class VilleEntity {
     private int id;
     private String codePostal;

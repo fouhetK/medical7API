@@ -18,13 +18,19 @@ public class VilleRESTAPI {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("")
-    public List<VilleEntity> getAll(){
+    public List<VilleEntity> getAll( @QueryParam("nom") String pnom ){
+        //List<PatientEntity> p = em.createNativeQuery("SELECT * FROM patient", PatientEntity.class).getResultList();
+        List<VilleEntity> v = null;
 
-        List<VilleEntity> vs = em.createNativeQuery("SELECT * FROM Ville", VilleEntity.class).getResultList();
-        if (vs == null)
-            throw new WebApplicationException(Response.Status.NOT_FOUND);
+        System.out.println( "nom passé en param = " + pnom );
 
-        return vs;
+        if( pnom == null || pnom.length() == 0  ){
+            v = em.createNamedQuery("ville.findAll" ).getResultList();
+        }else{
+            v = em.createNamedQuery("ville.findAllByNom" ).setParameter("nom" , "%"+pnom+"%").getResultList();
+        }
+
+        return v;
     }
 
     @GET
