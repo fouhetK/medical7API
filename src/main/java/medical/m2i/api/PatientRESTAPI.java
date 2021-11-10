@@ -1,6 +1,7 @@
 package medical.m2i.api;
 
 import entities.PatientEntity;
+import entities.PaysEntity;
 import entities.VilleEntity;
 import medical.m2i.dao.DbConnection;
 
@@ -37,6 +38,32 @@ public class PatientRESTAPI {
     @Path("")
     public void addPatient( PatientEntity p){// Récupération d’une transaction
         EntityTransaction tx = em.getTransaction();
+        // Début des modifications
+        try {
+            tx.begin();
+            em.persist(p);
+            tx.commit();
+        } catch (Exception e) {
+            tx.rollback();
+        }
+    }
+
+    @PUT
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Path("/{id}")
+    public void updateVille(@PathParam("id") int id, PatientEntity pparam){
+        PatientEntity p = getPatient(id);
+
+        p.setNom(pparam.getNom());
+        p.setPrenom(pparam.getPrenom());
+        p.setAdresse(pparam.getAdresse());
+        p.setDatenaissance(pparam.getDatenaissance());
+        p.setVilleByVilleId(em.find(VilleEntity.class, pparam.getVilleByVilleId().getId()));
+        p.setPaysByPaysCode(em.find(PaysEntity.class, pparam.getPaysByPaysCode().getCode()));
+
+        // Récupération d’une transaction
+        EntityTransaction tx = em.getTransaction();
+
         // Début des modifications
         try {
             tx.begin();
